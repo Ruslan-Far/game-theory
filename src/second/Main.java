@@ -12,17 +12,17 @@ public class Main {
 	private static int strategyA;
 	private static int strategyB;
 
-	private static final int[][] INITIAL_MATRIX = {
-			{4, 2, 2},
-			{2, 5, 0},
-			{0, 2, 5}
-	};
-
 //	private static final int[][] INITIAL_MATRIX = {
-//			{3, 5, 1, 1},
-//			{4, 2, 3, 3},
-//			{2, 1, 5, 4}
+//			{4, 2, 2},
+//			{2, 5, 0},
+//			{0, 2, 5}
 //	};
+
+	private static final int[][] INITIAL_MATRIX = {
+			{3, 5, 1, 1},
+			{4, 2, 3, 3},
+			{2, 1, 5, 4}
+	};
 
 	public static int[][] matrix;
 
@@ -33,6 +33,11 @@ public class Main {
 		int beta;
 		double[] answerA;
 		double[] answerB;
+		double f;
+		double g;
+		double V;
+		double[] p;
+		double[] q;
 
 		alpha = getLowerGamePrice();
 		System.out.println("Нижняя цена игры: " + alpha + "\n");
@@ -43,9 +48,31 @@ public class Main {
 			return;
 		}
 		prepareMatrixForDirect();
+		System.out.println("Подготовленная матрица для прямой задачи\n");
+		CommonFunctions.printMatrix(matrix);
+		Simplex.method();
+		answerB = Arrays.stream(Simplex.answer).toArray();
+		prepareMatrixForDual();
+		System.out.println("\nПодготовленная матрица для двойственной задачи\n");
 		CommonFunctions.printMatrix(matrix);
 		Simplex.method();
 		answerA = Arrays.stream(Simplex.answer).toArray();
+		f = Arrays.stream(answerB).sum();
+		g = Arrays.stream(answerA).sum();
+		System.out.printf("\nЛинейная форма оптимальных планов как сумма найденных координат для 1 игрока: %4.3f", g);
+		System.out.printf("\nЛинейная форма оптимальных планов как сумма найденных координат для 2 игрока: %4.3f", f);
+		V = 1 / f;
+		System.out.printf("\nЦена игры: %4.3f\n\n", V);
+		p = Arrays.stream(answerA)
+				.map(x -> V * x)
+				.toArray();
+		q = Arrays.stream(answerB)
+				.map(x -> V * x)
+				.toArray();
+		System.out.println("Оптимальная смешанная стратегия 1 игрока:");
+		CommonFunctions.printArray(p);
+		System.out.println("Оптимальная смешанная стратегия 2 игрока:");
+		CommonFunctions.printArray(q);
 	}
 
 	private static int getLowerGamePrice() {
@@ -118,6 +145,18 @@ public class Main {
 	private static void prepareMatrixForDual() {
 		int[][] localMatrix;
 
-		localMatrix = new int[matrix.length][matrix[0].length];
+		localMatrix = new int[matrix[0].length][matrix.length];
+		for (int i = 0; i < localMatrix.length; i++) {
+			for (int j = 0; j < localMatrix[i].length; j++) {
+				if (i == localMatrix.length - 1) {
+					localMatrix[i][j] = matrix[j][i];
+					continue;
+				}
+				localMatrix[i][j] = -matrix[j][i];
+			}
+		}
+		Simplex.answer = new double[localMatrix[0].length - 1];
+		matrix = localMatrix;
+		isMin = true;
 	}
 }
