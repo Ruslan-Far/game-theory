@@ -8,10 +8,16 @@ public class Main {
 	private static final int INF_MIN = -999999999;
 
 	private static final int[][] INITIAL_MATRIX = {
-			{3, 5, 1, 1},
-			{4, 2, 3, 3},
-			{2, 1, 5, 4}
+			{6, 1, 4},
+			{2, 4, 2},
+			{4, 3, 5}
 	};
+
+//	private static final int[][] INITIAL_MATRIX = {
+//			{3, 5, 1, 1},
+//			{4, 2, 3, 3},
+//			{2, 1, 5, 4}
+//	};
 
 	private static int strategyA;
 	private static int strategyB;
@@ -32,7 +38,7 @@ public class Main {
 			return;
 		}
 		k = 0;
-		limitMax = 5;
+		limitMax = 30;
 		matrix = new double[limitMax][INITIAL_MATRIX.length + INITIAL_MATRIX[0].length + 6];
 		while (k < limitMax) {
 			int i;
@@ -40,10 +46,19 @@ public class Main {
 			double vMin;
 			double vMax;
 
-			i = 2;
-			j = 1;
+			matrix[k][0] = k + 1;
 			if (k == 0) {
-				matrix[k][1] = i;
+				i = 0;
+				j = 1;
+			}
+			else {
+				i = selectAstrategy(matrix, k);
+				//matrix[k][1] = i + 1;///////////////////////////////////
+				j = selectBstrategy(matrix, k);
+			}
+			matrix[k][1] = i + 1;
+			matrix[k][2 + INITIAL_MATRIX[i].length] = j + 1;
+			if (k == 0) {
 				for (int jj = 0; jj < INITIAL_MATRIX[i].length; jj++) {
 					matrix[k][jj + 2] = INITIAL_MATRIX[i][jj];
 				}
@@ -52,7 +67,6 @@ public class Main {
 				}
 			}
 			else {
-				matrix[k][2 + INITIAL_MATRIX[i].length] = j;
 				for (int jj = 0; jj < INITIAL_MATRIX[i].length; jj++) {
 					matrix[k][jj + 2] = matrix[k - 1][jj + 2] + INITIAL_MATRIX[i][jj];
 				}
@@ -68,6 +82,42 @@ public class Main {
 			k++;
 		}
 		CommonFunctions.printMatrix(matrix);
+		getAnswer(matrix);
+	}
+
+	private static int selectAstrategy(double[][] matrix, int k) {
+		int j;
+		int max;
+		int strategyA;
+
+		j = (int) matrix[k - 1][2 + INITIAL_MATRIX[0].length] - 1;
+		max = INF_MIN;
+		strategyA = -1;
+		for (int i = 0; i < INITIAL_MATRIX.length; i++) {
+			if (INITIAL_MATRIX[i][j] > max) {
+				strategyA = i;
+				max = INITIAL_MATRIX[i][j];
+			}
+		}
+		return strategyA;
+	}
+
+	private static int selectBstrategy(double[][] matrix, int k) {
+		int i;
+		int min;
+		int strategyB;
+
+		//i = (int) matrix[k][1] - 1;//////////////////////////k-1
+		i = (int) matrix[k - 1][1] - 1;//////////////////////////
+		min = INF_MAX;
+		strategyB = -1;
+		for (int j = 0; j < INITIAL_MATRIX[i].length; j++) {
+			if (INITIAL_MATRIX[i][j] < min) {
+				strategyB = j;
+				min = INITIAL_MATRIX[i][j];
+			}
+		}
+		return strategyB;
 	}
 
 	private static double getVmin(double[][] matrix, int k) {
@@ -96,6 +146,24 @@ public class Main {
 				max = num;
 		}
 		return max;
+	}
+
+	private static void getAnswer(double[][] matrix) {
+		int k;
+		double min;
+
+		k = -1;
+		min = INF_MAX;
+		for (int i = 0; i < matrix.length; i++) {
+			double e;
+
+			e = matrix[i][matrix[0].length - 2] - matrix[i][matrix[0].length - 3];
+			if (e < min) {
+				k = i + 1;
+				min = e;
+			}
+		}
+		System.out.println("\n" + k);
 	}
 
 	private static int getLowerGamePrice() {
