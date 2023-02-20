@@ -2,6 +2,8 @@ package third;
 
 import common.CommonFunctions;
 
+import java.util.Arrays;
+
 public class Main {
 
 	private static final int INF_MAX = 999999999;
@@ -38,7 +40,7 @@ public class Main {
 			return;
 		}
 		k = 0;
-		limitMax = 30;
+		limitMax = 20;
 		matrix = new double[limitMax][INITIAL_MATRIX.length + INITIAL_MATRIX[0].length + 6];
 		while (k < limitMax) {
 			int i;
@@ -90,7 +92,8 @@ public class Main {
 		int max;
 		int strategyA;
 
-		j = (int) matrix[k - 1][2 + INITIAL_MATRIX[0].length] - 1;
+//		j = (int) matrix[k - 1][2 + INITIAL_MATRIX[0].length] - 1;
+		j = getIndexMaxFrequency(calcFrequencies(matrix, false));
 		max = INF_MIN;
 		strategyA = -1;
 		for (int i = 0; i < INITIAL_MATRIX.length; i++) {
@@ -108,7 +111,8 @@ public class Main {
 		int strategyB;
 
 		//i = (int) matrix[k][1] - 1;//////////////////////////k-1
-		i = (int) matrix[k - 1][1] - 1;//////////////////////////
+		//i = (int) matrix[k - 1][1] - 1;//////////////////////////
+		i = getIndexMaxFrequency(calcFrequencies(matrix, true));
 		min = INF_MAX;
 		strategyB = -1;
 		for (int j = 0; j < INITIAL_MATRIX[i].length; j++) {
@@ -146,6 +150,55 @@ public class Main {
 				max = num;
 		}
 		return max;
+	}
+
+	private static double[] calcFrequencies(double[][] matrix, boolean isA) {
+		double[] frequencies;
+		int j;
+		double realLenMatrix;
+
+		realLenMatrix = -1;
+		if (isA) {
+			frequencies = new double[INITIAL_MATRIX.length];
+			j = 1;
+		}
+		else {
+			frequencies = new double[INITIAL_MATRIX[0].length];
+			j = 2 + INITIAL_MATRIX[0].length;
+		}
+		for (int i = 0; i < matrix.length; i++) {
+			if (matrix[i][j] == 0) {
+				realLenMatrix = i;
+				break;
+			}
+			frequencies[(int) matrix[i][j] - 1] += 1;
+		}
+		for (int i = 0; i < frequencies.length; i++) {
+			frequencies[i] /= realLenMatrix;
+		}
+		if (isA) {
+			System.out.println("Частоты A:");
+		}
+		else {
+			System.out.println("Частоты B:");
+		}
+		CommonFunctions.printArray(frequencies);
+		return frequencies;
+	}
+
+	private static int getIndexMaxFrequency(double[] frequencies) {
+		int index;
+		double max;
+
+		index = -1;
+		max = INF_MIN;
+		for (int i = 0; i < frequencies.length; i++) {
+			if (frequencies[i] > max) {
+				index = i;
+				max = frequencies[i];
+			}
+		}
+		return index;
 	}
 
 	private static void getAnswer(double[][] matrix) {
