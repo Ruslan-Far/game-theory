@@ -39,6 +39,8 @@ public class Main {
 	private static int strategyA;
 	private static int strategyB;
 
+	private static final double EPSILON = 0.001;
+
 	public static void main(String[] args) {
 		int alpha;
 		int beta;
@@ -55,9 +57,9 @@ public class Main {
 			return;
 		}
 		k = 0;
-		limitMax = 200;
+		limitMax = 1000000;
 		matrix = new double[limitMax][INITIAL_MATRIX.length + INITIAL_MATRIX[0].length + 6];
-		while (k < limitMax) {
+		while (true) {
 			int i;
 			int j;
 			double vMin;
@@ -98,8 +100,10 @@ public class Main {
 			matrix[k][INITIAL_MATRIX.length + INITIAL_MATRIX[i].length + 4] = vMax;
 			matrix[k][matrix[i].length - 1] = (vMin + vMax) / 2;
 			k++;
+			if (vMax - vMin < EPSILON)
+				break;
 		}
-		CommonFunctions.printMatrix(matrix);
+		printMatrix(matrix);
 		getAnswer(matrix);
 	}
 
@@ -161,7 +165,7 @@ public class Main {
 		return max;
 	}
 
-	private static double[] calcFrequencies(double[][] matrix, boolean isA) {
+	private static double[] calcFrequencies(double[][] matrix, boolean isA, int k) {
 		double[] frequencies;
 		int j;
 
@@ -174,10 +178,12 @@ public class Main {
 			j = 2 + INITIAL_MATRIX[0].length;
 		}
 		for (int i = 0; i < matrix.length; i++) {
+			if (matrix[i][0] == 0)
+				break;
 			frequencies[(int) matrix[i][j] - 1] += 1;
 		}
 		for (int i = 0; i < frequencies.length; i++) {
-			frequencies[i] /= matrix.length;
+			frequencies[i] /= k;
 		}
 		if (isA) {
 			System.out.println("Частоты A:");
@@ -198,6 +204,8 @@ public class Main {
 		for (int i = 0; i < matrix.length; i++) {
 			double e;
 
+			if (matrix[i][0] == 0)
+				break;
 			e = matrix[i][matrix[0].length - 2] - matrix[i][matrix[0].length - 3];
 			if (e < min) {
 				k = i + 1;
@@ -205,8 +213,8 @@ public class Main {
 			}
 		}
 		System.out.println("Наилучший результат в " + k + " строке\n");
-		calcFrequencies(matrix, true);
-		calcFrequencies(matrix, false);
+		calcFrequencies(matrix, true, k);
+		calcFrequencies(matrix, false, k);
 	}
 
 	private static int getLowerGamePrice() {
@@ -261,5 +269,17 @@ public class Main {
 			}
 		}
 		return min;
+	}
+
+	private static void printMatrix(double[][] matrix) {
+		for (int i = 0; i < matrix.length; i++) {
+			if (matrix[i][0] == 0)
+				break;
+			for (int j = 0; j < matrix[i].length; j++) {
+				System.out.printf("%4.3f\t", matrix[i][j]);
+			}
+			System.out.println();
+		}
+		System.out.println();
 	}
 }
