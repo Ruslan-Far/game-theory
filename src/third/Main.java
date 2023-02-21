@@ -10,10 +10,16 @@ public class Main {
 	private static final int INF_MIN = -999999999;
 
 	private static final int[][] INITIAL_MATRIX = {
-			{6, 1, 4},
-			{2, 4, 2},
-			{4, 3, 5}
+			{3, 7, 1, -2, 2},
+			{2, -5, -4, 0, 2},
+			{1, 6, -3, -5, -1}
 	};
+
+//	private static final int[][] INITIAL_MATRIX = {
+//			{6, 1, 4},
+//			{2, 4, 2},
+//			{4, 3, 5}
+//	};
 
 //	private static final int[][] INITIAL_MATRIX = {
 //			{3, 5, 1, 1},
@@ -40,7 +46,7 @@ public class Main {
 			return;
 		}
 		k = 0;
-		limitMax = 20;
+		limitMax = 14;
 		matrix = new double[limitMax][INITIAL_MATRIX.length + INITIAL_MATRIX[0].length + 6];
 		while (k < limitMax) {
 			int i;
@@ -51,7 +57,7 @@ public class Main {
 			matrix[k][0] = k + 1;
 			if (k == 0) {
 				i = 0;
-				j = 1;
+				j = 3;
 			}
 			else {
 				i = selectAstrategy(matrix, k);
@@ -93,15 +99,16 @@ public class Main {
 		int strategyA;
 
 //		j = (int) matrix[k - 1][2 + INITIAL_MATRIX[0].length] - 1;
-		j = getIndexMaxFrequency(calcFrequencies(matrix, false));
-		max = INF_MIN;
-		strategyA = -1;
-		for (int i = 0; i < INITIAL_MATRIX.length; i++) {
-			if (INITIAL_MATRIX[i][j] > max) {
-				strategyA = i;
-				max = INITIAL_MATRIX[i][j];
-			}
-		}
+//		j = getIndexMaxFrequency(calcFrequencies(matrix, false));
+//		max = INF_MIN;
+//		strategyA = -1;
+//		for (int i = 0; i < INITIAL_MATRIX.length; i++) {
+//			if (INITIAL_MATRIX[i][j] > max) {
+//				strategyA = i;
+//				max = INITIAL_MATRIX[i][j];
+//			}
+//		}
+		strategyA = getIndexMaxInMatrix(calcFrequencies(matrix, false));
 		return strategyA;
 	}
 
@@ -112,15 +119,16 @@ public class Main {
 
 		//i = (int) matrix[k][1] - 1;//////////////////////////k-1
 		//i = (int) matrix[k - 1][1] - 1;//////////////////////////
-		i = getIndexMaxFrequency(calcFrequencies(matrix, true));
-		min = INF_MAX;
-		strategyB = -1;
-		for (int j = 0; j < INITIAL_MATRIX[i].length; j++) {
-			if (INITIAL_MATRIX[i][j] < min) {
-				strategyB = j;
-				min = INITIAL_MATRIX[i][j];
-			}
-		}
+//		i = getIndexMaxFrequency(calcFrequencies(matrix, true));
+//		min = INF_MAX;
+//		strategyB = -1;
+//		for (int j = 0; j < INITIAL_MATRIX[i].length; j++) {
+//			if (INITIAL_MATRIX[i][j] < min) {
+//				strategyB = j;
+//				min = INITIAL_MATRIX[i][j];
+//			}
+//		}
+		strategyB = getIndexMinInMatrix(calcFrequencies(matrix, true));
 		return strategyB;
 	}
 
@@ -186,18 +194,64 @@ public class Main {
 		return frequencies;
 	}
 
-	private static int getIndexMaxFrequency(double[] frequencies) {
+//	private static int getIndexMaxFrequency(double[] frequencies) {
+//		int index;
+//		double max;
+//
+//		index = -1;
+//		max = INF_MIN;
+//		for (int i = 0; i < frequencies.length; i++) {
+//			if (frequencies[i] > max) {
+//				index = i;
+//				max = frequencies[i];
+//			}
+//		}
+//		return index;
+//	}
+
+	private static int getIndexMaxInMatrix(double[] frequencies) {
 		int index;
 		double max;
+		double sum;
 
 		index = -1;
 		max = INF_MIN;
-		for (int i = 0; i < frequencies.length; i++) {
-			if (frequencies[i] > max) {
-				index = i;
-				max = frequencies[i];
+		sum = 0;
+		for (int i = 0; i < INITIAL_MATRIX.length; i++) {
+			for (int j = 0; j < INITIAL_MATRIX[i].length; j++) {
+				sum += INITIAL_MATRIX[i][j] * frequencies[j];
 			}
+			if (sum > max) {
+				index = i;
+				max = sum;
+			}
+			sum = 0;
 		}
+		System.out.println("Сумма=" + max);
+		System.out.println("alpha=" + (index + 1) + "\n");
+		return index;
+	}
+
+	private static int getIndexMinInMatrix(double[] frequencies) {
+		int index;
+		double min;
+		double sum;
+
+		index = -1;
+		min = INF_MAX;
+		sum = 0;
+		for (int j = 0; j < INITIAL_MATRIX[0].length; j++) {
+			for (int i = 0; i < INITIAL_MATRIX.length; i++) {
+				sum += INITIAL_MATRIX[i][j] * frequencies[i];
+			}
+			if (sum < min) {
+				index = j;
+				min = sum;
+			}
+			sum = 0;
+		}
+		System.out.println("Сумма=" + min);
+		System.out.println("beta=" + (index + 1) + "\n");
 		return index;
 	}
 
